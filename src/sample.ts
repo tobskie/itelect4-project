@@ -3,8 +3,8 @@ import type { User, Course, Submission } from "../types/index";
 // sample.js -- provided for GT1 Part 1
 // Task: convert to TS (rename sample.ts). Annotate all vars, params, return types
 
-// Fetches mock student data by ID number
-function getUser(id: number) {
+// Fetches student data by ID number
+function getUser(id: number): User & { score?: number } {
   return {
     id: id,
     name: "Juan dela Cruz",
@@ -16,7 +16,7 @@ function getUser(id: number) {
 }
 
 // Converts a score into a letter grade
-function calculateGrade(score: number, maxScore: number) {
+function calculateGrade(score: number, maxScore: number): string {
   const percentage: number = (score / maxScore) * 100;
   if (percentage >= 90) return "A";
   if (percentage >= 80) return "B";
@@ -25,7 +25,7 @@ function calculateGrade(score: number, maxScore: number) {
 }
 
 // Returns a formatted string with course details
-function formatCourse(name: string, units: number, semester: string) {
+function formatCourse(name: string, units: number, semester: string): string {
   return `${name} (${units} units) - ${semester}`;
 }
 

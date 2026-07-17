@@ -1,30 +1,38 @@
-TypeScripts 
+# PeerConnect – Peer Tutoring Booking Platform
 
-This project is an Advanced TypeScript demonstration application. It showcases core TypeScript features like interfaces, type aliases, generics, type narrowing, and utility types using a simulated student course management system.
+A TypeScript-based platform where students can sign up as tutors or tutees, post and discover tutoring sessions, and manage bookings through a clear status lifecycle (Requested → Confirmed → Completed). Built as a GT1 project for IT Elective 4 (AY 2026-2027) to demonstrate core TypeScript features including interfaces, enums, generics, type narrowing, and utility types.
 
-Defined Interfaces & Types
+## Interfaces & Types
 
-All models and custom types are defined in [types/index.ts](file:///c:/Users/Acer/Documents/toby/ITELEC/ITELEC4/itelect4-project/types/index.ts):
+Defined in `types/index.ts`:
 
-*   **User**: Represents user profile information.
-*   **Course**: Represents course subject details.
-*   **Submission**: Represents assignment submissions.
-*   **ID** & **StringOrNumber**: Union types for flexible parameters.
-*   **Coordinate**: 2D coordinate structure.
-*   **Formatter**: Formatting function signature.
-*   **Status**: Status literals (`"pending" | "active" | "inactive"`).
-*   **StudentWithCourse**: Intersection type combining User details and Course GPA.
-*   **ApiResponse<T>**: Generic interface for standardized API responses.
-*   **Utility Types**: `UserUpdate` (Partial), `UserPreview` (Pick), `PublicUser` (Omit), `RoleCount` (Record).
+**Class Demo (Part 1)**
+- `User` – user profile with a role field (`student | admin | instructor`)
+- `Course` – course subject details
+- `Submission` – assignment submission with an optional score
+- `SubmissionStatus` – enum: `Pending | Graded | Late`
+- `Role` – const enum: `Student | Admin | Instructor`
+- `ApiResponse<T>` – generic wrapper for API responses
+- `UserUpdate`, `UserPreview`, `PublicUser`, `RoleCount` – utility types
 
-Setup & Running
+**Tutoring Platform (GT1)**
+- `TutoringUser` – platform user with a role field (`tutor | tutee | admin`)
+- `Session` – tutoring session posted by a tutor
+- `Booking` – a tutee's booking tied to a session
+- `BookingStatus` – enum: `Requested | Confirmed | Completed | Cancelled`
+- `UserRole` – const enum: `Tutor | Tutee | Admin`
+- `TutoringUserUpdate`, `TutoringUserCard`, `PublicTutoringUser`, `BookingStatusCount`, `SessionUpdate` – utility types
+- `TutorWithStats` – intersection type adding live stats to a tutor
+- `DurationFormatter` – function type alias
 
-1. **Install dependencies**:
+## Setup & Running
+
+1. Install dependencies:
    ```bash
    npm install
    ```
 
-2. **Run the application**:
+2. Run the app:
    ```bash
    npx ts-node src/index.ts
    ```

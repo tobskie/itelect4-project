@@ -1,3 +1,4 @@
+/* ===== PART 1 -- CLASS DEMO (hidden for now) =====
 import type { User, Course, Submission } from "../types/index";
 
 // ===== PRIMITIVE TYPE ANNOTATIONS =====
@@ -10,12 +11,12 @@ const notSet: undefined = undefined;
 
 // Function: typed parameters + typed return value
 function greet(name: string, year: number): string {
-return `Welcome to ${name} -- AY ${year}!`;
+    return `Welcome to ${name} -- AY ${year}!`;
 }
 
 // void: function that does NOT return a value
 function logMessage(message: string): void {
-console.log(message);
+    console.log(message);
 }
 logMessage(greet(projectName, currentYear));
 
@@ -29,27 +30,27 @@ anything = true; // No error
 // You MUST check the type before using it
 let userInput: unknown = "test";
 if (typeof userInput === "string") {
-console.log(userInput.toUpperCase()); // OK -- TypeScript knows it's a string here
+    console.log(userInput.toUpperCase()); // OK -- TypeScript knows it's a string here
 }
 // never -- a function that NEVER returns
 // Used when a function always throws an error or loops forever
 function throwError(message: string): never {
-throw new Error(message);
+    throw new Error(message);
 }
 
 // ===== USING INTERFACES =====
 const student: User = {
-id: 1,
-name: "Juan dela Cruz",
-email: "juan@example.com",
-role: "student",
-isActive: true,
+    id: 1,
+    name: "Juan dela Cruz",
+    email: "juan@example.com",
+    role: "student",
+    isActive: true,
 };
 const course: Course = {
-code: "ITELECT4",
-title: "IT Elective 4",
-units: 3,
-semester: "1st Semester 2026-2027",
+    code: "Calculus",
+    title: "Calculus",
+    units: 3,
+    semester: "1st Semester 2026-2027",
 };
 console.log(student);
 console.log(course);
@@ -60,18 +61,18 @@ import type { StringOrNumber } from "../types/index";
 // Without the if-check, TypeScript would error:
 // Property 'toUpperCase' does not exist on type 'number'
 function processInput(input: StringOrNumber): string {
-if (typeof input === "string") {
-return input.toUpperCase(); // TypeScript knows: input is string here
-}
-return input.toFixed(2); // TypeScript knows: input is number here
+    if (typeof input === "string") {
+        return input.toUpperCase(); // TypeScript knows: input is string here
+    }
+    return input.toFixed(2); // TypeScript knows: input is number here
 }
 // Narrowing with instanceof
 // Used with class instances like Date, Error, etc.
 function formatDate(value: string | Date): string {
-if (value instanceof Date) {
-return value.toLocaleDateString(); // TypeScript knows: it's a Date
-}
-return value; // TypeScript knows: it's a string
+    if (value instanceof Date) {
+        return value.toLocaleDateString(); // TypeScript knows: it's a Date
+    }
+    return value; // TypeScript knows: it's a string
 }
 console.log(processInput("hello")); // HELLO
 console.log(processInput(3.14159)); // 3.14
@@ -80,14 +81,14 @@ console.log(formatDate(new Date())); // e.g. 7/4/2026
 // ===== GENERIC FUNCTIONS =====
 // T is inferred automatically from whatever array you pass in
 function getFirst<T>(items: T[]): T | undefined {
-return items[0];
+    return items[0];
 }
 // Constrained generic -- T must have an "id: number" field
 function getById<T extends { id: number }>(
-items: T[],
-id: number
+    items: T[],
+    id: number
 ): T | undefined {
-return items.find((item) => item.id === id);
+    return items.find((item) => item.id === id);
 }
 // [student] is an array containing one element
 const firstUser = getFirst<User>([student]);
@@ -96,7 +97,7 @@ const foundUser = getById<User>([student], 1);
 console.log(firstUser?.name); // Juan dela Cruz
 console.log(foundUser?.email); // juan@example.com
 
-// ----- src/index.ts -----
+// ===== GENERIC INTERFACE: ApiResponse<T> =====
 import type { ApiResponse } from "../types/index";
 const userResponse: ApiResponse<User> = {
     success: true,
@@ -108,9 +109,8 @@ const courseResponse: ApiResponse<Course[]> = {
 };
 console.log(userResponse.data.name); // Juan dela Cruz
 
-
 // ===== USING UTILITY TYPES =====
-import { UserUpdate, UserPreview, PublicUser, RoleCount } from "../types/index";
+import type { UserUpdate, UserPreview, PublicUser, RoleCount } from "../types/index";
 // Partial<T> -- update payload only needs the changed fields
 const patch: UserUpdate = { name: "Juan D. Cruz" };
 // Pick<T,K> -- a lightweight preview object
@@ -121,13 +121,13 @@ const publicProfile: PublicUser = { id: 1, name: "Juan dela Cruz", role: "studen
 const roleCount: RoleCount = { student: 45, admin: 2, instructor: 3 };
 // ===== ReturnType<T> =====
 function makeSubmission(courseCode: string) {
-return { id: 1, studentId: 1, courseCode, submittedAt: new Date() };
+    return { id: 1, studentId: 1, courseCode, submittedAt: new Date() };
 }
 // Infer the shape directly from the function -- no need to redeclare it
 type NewSubmission = ReturnType<typeof makeSubmission>;
 const gt1Submission: NewSubmission = makeSubmission("ITELECT4");
 
-// ===== USING ENUMS =====
+// ===== USING ENUMS (Part 1 -- class demo) =====
 import { SubmissionStatus, Role } from "../types/index";
 let status: SubmissionStatus = SubmissionStatus.Pending;
 console.log(SubmissionStatus[status]); // "Pending" -- reverse mapping
@@ -135,3 +135,155 @@ status = SubmissionStatus.Graded;
 console.log(status === SubmissionStatus.Graded); // true
 const currentRole: Role = Role.Student;
 console.log(currentRole); // "student"
+===== END PART 1 ===== */
+
+// ============================================================
+// ----- PEER TUTORING BOOKING PLATFORM -- GT1 Demo -----
+// ============================================================
+import type {
+    TutoringUser,
+    Session,
+    Booking,
+    TutoringUserUpdate,
+    TutoringUserCard,
+    PublicTutoringUser,
+    BookingStatusCount,
+    SessionUpdate,
+    DurationFormatter,
+    TutorWithStats,
+    ApiResponse,
+} from "../types/index";
+import { BookingStatus, UserRole } from "../types/index";
+
+// ===== USING CORE INTERFACES =====
+const tutor: TutoringUser = {
+    id: 1,
+    name: "Toby",
+    email: "tobster@example.com",
+    role: "tutor",
+    isActive: true,
+    bio: "4th yr BSIT Student",
+    subjects: ["ITELECT4"],
+};
+const tutee: TutoringUser = {
+    id: 2,
+    name: "Anton",
+    email: "antonphilippeolimpo@example.com",
+    role: "tutee",
+    isActive: true,
+};
+const session: Session = {
+    id: 101,
+    tutorId: tutor.id,
+    subject: "ITELECT4",
+    description: "IT Elective 4",
+    scheduledAt: new Date("2026-07-20T14:00:00"),
+    durationMinutes: 60,
+    maxSlots: 3,
+};
+const booking: Booking = {
+    id: 201,
+    sessionId: session.id,
+    tuteeId: tutee.id,
+    status: BookingStatus.Requested,
+    requestedAt: new Date(),
+};
+console.log(tutor);
+console.log(tutee);
+console.log(session);
+console.log(booking);
+
+// ===== USING ENUMS (Tutoring Platform) =====
+// Multi-step lifecycle: Requested -> Confirmed -> Completed
+let bookingStatus: BookingStatus = BookingStatus.Requested;
+console.log(BookingStatus[bookingStatus]); // "Requested" -- reverse mapping
+bookingStatus = BookingStatus.Confirmed;
+console.log(bookingStatus === BookingStatus.Confirmed); // true
+bookingStatus = BookingStatus.Completed;
+console.log(BookingStatus[bookingStatus]); // "Completed"
+// const enum (UserRole) is inlined at compile time
+const currentUserRole: UserRole = UserRole.Tutor;
+console.log(currentUserRole); // "tutor"
+
+// ===== GENERIC FUNCTIONS (Tutoring entities) =====
+function getFirstTutor<T>(items: T[]): T | undefined {
+    return items[0];
+}
+function getSessionById<T extends { id: number }>(
+    items: T[],
+    id: number
+): T | undefined {
+    return items.find((item) => item.id === id);
+}
+// ReturnType<T> -- infer the shape from a factory function
+function makeBooking(sessionId: number, tuteeId: number) {
+    return {
+        id: Date.now(),
+        sessionId,
+        tuteeId,
+        status: BookingStatus.Requested,
+        requestedAt: new Date(),
+    };
+}
+type NewBooking = ReturnType<typeof makeBooking>;
+const testBooking: NewBooking = makeBooking(101, 2);
+
+const users: TutoringUser[] = [tutor, tutee];
+const firstTutor = getFirstTutor<TutoringUser>(users);
+const foundSession = getSessionById<Session>([session], 101);
+console.log(firstTutor?.name);    // Maria Santos
+console.log(foundSession?.subject); // Calculus
+
+// ===== GENERIC INTERFACE: ApiResponse<T> (Tutoring) =====
+const tutorResponse: ApiResponse<TutoringUser> = {
+    success: true,
+    data: tutor,
+};
+const sessionListResponse: ApiResponse<Session[]> = {
+    success: true,
+    data: [session],
+    message: "1 session found.",
+};
+console.log(tutorResponse.data.name);          // Maria Santos
+console.log(sessionListResponse.data.length);  // 1
+
+// ===== USING UTILITY TYPES (Tutoring) =====
+// Partial<TutoringUser> -- patch payload only needs changed fields
+const tutorPatch: TutoringUserUpdate = { bio: "Updated bio.", subjects: ["Physics"] };
+// Pick<TutoringUser, ...> -- lightweight card for search results
+const tutorCard: TutoringUserCard = {
+    id: tutor.id,
+    name: tutor.name,
+    role: "tutor",
+    subjects: ["Calculus", "Data Structures"],
+};
+// Omit<TutoringUser, ...> -- safe public profile
+const publicTutor: PublicTutoringUser = {
+    id: tutor.id,
+    name: tutor.name,
+    role: "tutor",
+    bio: "4th yr BSIT Student",
+    subjects: ["ITELECT4"],
+};
+// Record<K, number> -- booking dashboard counts
+const bookingStatusCount: BookingStatusCount = {
+    requested: 5,
+    confirmed: 3,
+    completed: 12,
+    cancelled: 1,
+};
+// Partial<Session> -- edit only changed fields
+const sessionPatch: SessionUpdate = { durationMinutes: 90 };
+
+// DurationFormatter -- typed function alias
+const formatDuration: DurationFormatter = (minutes) =>
+    `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
+console.log(formatDuration(90)); // 1h 30m
+
+// Intersection type -- TutorWithStats
+const tutorWithStats: TutorWithStats = {
+    ...tutor,
+    upcomingSessionCount: 4,
+    avgRating: 4.8,
+};
+console.log(`${tutorWithStats.name} | Rating: ${tutorWithStats.avgRating}`);

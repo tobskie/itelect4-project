@@ -155,6 +155,10 @@ import type {
 } from "../types/index";
 import { BookingStatus, UserRole } from "../types/index";
 
+console.log("=========================================");
+console.log("     PEER TUTORING BOOKING PLATFORM      ");
+console.log("=========================================\n");
+
 // ===== USING CORE INTERFACES =====
 const tutor: TutoringUser = {
     id: 1,
@@ -188,24 +192,36 @@ const booking: Booking = {
     status: BookingStatus.Requested,
     requestedAt: new Date(),
 };
+console.log("\n=== USERS ===");
 console.log(tutor);
 console.log(tutee);
+
+console.log("\n=== SESSIONS ===");
 console.log(session);
+
+console.log("\n=== BOOKINGS ===");
 console.log(booking);
 
 // ===== USING ENUMS (Tutoring Platform) =====
-// Multi-step lifecycle: Requested -> Confirmed -> Completed
+console.log("\nBOOKING STATUS");
 let bookingStatus: BookingStatus = BookingStatus.Requested;
-console.log(BookingStatus[bookingStatus]); // "Requested" -- reverse mapping
+console.log(`Booking ID: #${booking.id}`);
+console.log(`Status: ${BookingStatus[bookingStatus]}`);
+
 bookingStatus = BookingStatus.Confirmed;
-console.log(bookingStatus === BookingStatus.Confirmed); // true
+console.log(`Booking ID: #${booking.id}`);
+console.log(`Status: ${BookingStatus[bookingStatus]}`);
+
 bookingStatus = BookingStatus.Completed;
-console.log(BookingStatus[bookingStatus]); // "Completed"
-// const enum (UserRole) is inlined at compile time
+console.log(`Booking ID: #${booking.id}`);
+console.log(`Status: ${BookingStatus[bookingStatus]}`);
+
+// console.log("\n=== USER ROLES ===");
 const currentUserRole: UserRole = UserRole.Tutor;
-console.log(currentUserRole); // "tutor"
+// console.log(currentUserRole); // "tutor"
 
 // ===== GENERIC FUNCTIONS (Tutoring entities) =====
+// console.log("\n=== GENERICS (FUNCTIONS) ===");
 function getFirstTutor<T>(items: T[]): T | undefined {
     return items[0];
 }
@@ -231,10 +247,11 @@ const testBooking: NewBooking = makeBooking(101, 2);
 const users: TutoringUser[] = [tutor, tutee];
 const firstTutor = getFirstTutor<TutoringUser>(users);
 const foundSession = getSessionById<Session>([session], 101);
-console.log(firstTutor?.name);    // Maria Santos
-console.log(foundSession?.subject); // Calculus
+// console.log(firstTutor?.name);    // Maria Santos
+// console.log(foundSession?.subject); // Calculus
 
 // ===== GENERIC INTERFACE: ApiResponse<T> (Tutoring) =====
+// console.log("\n=== GENERIC INTERFACES ===");
 const tutorResponse: ApiResponse<TutoringUser> = {
     success: true,
     data: tutor,
@@ -244,10 +261,11 @@ const sessionListResponse: ApiResponse<Session[]> = {
     data: [session],
     message: "1 session found.",
 };
-console.log(tutorResponse.data.name);          // Maria Santos
-console.log(sessionListResponse.data.length);  // 1
+// console.log(tutorResponse.data.name);          // Maria Santos
+// console.log(sessionListResponse.data.length);  // 1
 
 // ===== USING UTILITY TYPES (Tutoring) =====
+// console.log("\n=== UTILITY TYPES & FORMATTERS ===");
 // Partial<TutoringUser> -- patch payload only needs changed fields
 const tutorPatch: TutoringUserUpdate = { bio: "Updated bio.", subjects: ["Physics"] };
 // Pick<TutoringUser, ...> -- lightweight card for search results
@@ -278,12 +296,13 @@ const sessionPatch: SessionUpdate = { durationMinutes: 90 };
 // DurationFormatter -- typed function alias
 const formatDuration: DurationFormatter = (minutes) =>
     `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
-console.log(formatDuration(90)); // 1h 30m
+// console.log(formatDuration(90)); // 1h 30m
 
 // Intersection type -- TutorWithStats
+// console.log("\n=== INTERSECTION TYPES ===");
 const tutorWithStats: TutorWithStats = {
     ...tutor,
     upcomingSessionCount: 4,
     avgRating: 4.8,
 };
-console.log(`${tutorWithStats.name} | Rating: ${tutorWithStats.avgRating}`);
+// console.log(`${tutorWithStats.name} | Rating: ${tutorWithStats.avgRating}`);

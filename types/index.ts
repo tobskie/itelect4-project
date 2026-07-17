@@ -63,11 +63,12 @@ export type Coordinate = {
 // Alias for a function signature
 export type Formatter = (value: number) => string;
 // Using them
+// Using them
 const studentId: ID = "S2026-001";
 const position: Coordinate = { x: 10, y: 20 };
 const formatScore: Formatter = (value) => `${value}%`;
-console.log(studentId); // S2026-001
-console.log(formatScore(95.5)); // 95.5%
+// console.log(studentId); // S2026-001
+// console.log(formatScore(95.5)); // 95.5%
 
 // ===== UNION TYPES -- One OR the other =====
 export type StringOrNumber = string | number;
@@ -77,8 +78,8 @@ export type Status = "pending" | "active" | "inactive"; // literal union
 function printId(id: StringOrNumber): void {
     console.log(`ID: ${id}`);
 }
-printId(101);
-printId("S2026-001");
+// printId(101);
+// printId("S2026-001");
 
 // ===== INTERSECTION TYPES -- combines ALL properties =====
 // StudentWithCourse must have all User fields AND enrolledCourse AND gpa

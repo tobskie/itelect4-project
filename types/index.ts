@@ -40,15 +40,15 @@ export type RoleCount = Record<
 // ===== ENUMS =====
 // Regular enum -- exists at runtime; can be looped over or reverse-mapped
 export enum SubmissionStatus {
-Pending,
-Graded,
-Late,
+    Pending,
+    Graded,
+    Late,
 }
 // const enum -- inlined at compile time, zero runtime overhead
 export const enum Role {
-Student = "student",
-Admin = "admin",
-Instructor = "instructor",
+    Student = "student",
+    Admin = "admin",
+    Instructor = "instructor",
 }
 
 // ===== TYPE ALIASES =====
@@ -103,3 +103,81 @@ export interface ApiResponse<T> {
 }
 
 
+// ============================================================
+// ----- PEER TUTORING BOOKING PLATFORM -- GT1 Types -----
+// ============================================================
+
+// ===== ENUMS =====
+// Regular enum -- exists at runtime; supports reverse mapping
+// Multi-step status lifecycle: Requested -> Confirmed -> Completed
+export enum BookingStatus {
+    Requested,   // 0  tutee has sent the request
+    Confirmed,   // 1  tutor accepted
+    Completed,   // 2  session was held
+    Cancelled,   // 3  either party cancelled
+}
+// const enum -- inlined at compile time, zero runtime overhead
+export const enum UserRole {
+    Tutor   = "tutor",
+    Tutee   = "tutee",
+    Admin   = "admin",
+}
+
+// ===== INTERFACES =====
+// Entity 1 -- role field: "tutor" | "tutee" | "admin"
+export interface TutoringUser {
+    id: number;
+    name: string;
+    email: string;
+    role: "tutor" | "tutee" | "admin"; // literal union mirrors UserRole
+    isActive: boolean;
+    bio?: string;        // optional -- tutors fill this; tutees may skip
+    subjects?: string[]; // subjects a tutor can teach
+}
+
+// Entity 2 -- a session a tutor makes available
+export interface Session {
+    id: number;
+    tutorId: number;
+    subject: string;
+    description: string;
+    scheduledAt: Date;
+    durationMinutes: number;
+    maxSlots: number;
+}
+
+// Entity 3 -- a tutee's booking for a session
+// Uses the BookingStatus lifecycle above
+export interface Booking {
+    id: number;
+    sessionId: number;
+    tuteeId: number;
+    status: BookingStatus;
+    requestedAt: Date;
+    confirmedAt?: Date;  // set when tutor confirms
+    completedAt?: Date;  // set when session is marked done
+    notes?: string;
+}
+
+// ===== UTILITY TYPES =====
+// Partial<TutoringUser> -- patch payload only needs the changed fields
+export type TutoringUserUpdate = Partial<TutoringUser>;
+// Pick<TutoringUser, K> -- lightweight card for search results
+export type TutoringUserCard  = Pick<TutoringUser, "id" | "name" | "role" | "subjects">;
+// Omit<TutoringUser, K> -- safe public profile (no email)
+export type PublicTutoringUser = Omit<TutoringUser, "email" | "isActive">;
+// Record<K, T> -- dashboard booking counts per status
+export type BookingStatusCount = Record<"requested" | "confirmed" | "completed" | "cancelled", number>;
+// Partial<Session> -- used when editing a session
+export type SessionUpdate = Partial<Session>;
+
+// ===== TYPE ALIASES =====
+// Alias for a function signature -- formats a duration in minutes
+export type DurationFormatter = (minutes: number) => string;
+
+// ===== INTERSECTION TYPES =====
+// A tutor with live stats -- used in listing/detail views
+export type TutorWithStats = TutoringUser & {
+    upcomingSessionCount: number;
+    avgRating: number;
+};

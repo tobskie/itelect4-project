@@ -159,6 +159,10 @@ console.log("=========================================");
 console.log("     PEER TUTORING BOOKING PLATFORM      ");
 console.log("=========================================\n");
 
+console.log("=========================================");
+console.log("     PEER TUTORING BOOKING PLATFORM      ");
+console.log("=========================================\n");
+
 // ===== USING CORE INTERFACES =====
 const tutor: TutoringUser = {
     id: 1,

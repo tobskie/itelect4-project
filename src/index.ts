@@ -152,8 +152,12 @@ import type {
     DurationFormatter,
     TutorWithStats,
     ApiResponse,
-} from "../types/index";
-import { BookingStatus, UserRole } from "../types/index";
+} from "./types/index";
+import { BookingStatus, UserRole } from "./types/index";
+
+console.log("=========================================");
+console.log("     PEER TUTORING BOOKING PLATFORM      ");
+console.log("=========================================\n");
 
 // ===== USING CORE INTERFACES =====
 const tutor: TutoringUser = {
@@ -188,35 +192,47 @@ const booking: Booking = {
     status: BookingStatus.Requested,
     requestedAt: new Date(),
 };
+console.log("\n=== USERS ===");
 console.log(tutor);
 console.log(tutee);
+
+console.log("\n=== SESSIONS ===");
 console.log(session);
+
+console.log("\n=== BOOKINGS ===");
 console.log(booking);
 
 // ===== USING ENUMS (Tutoring Platform) =====
-// Multi-step lifecycle: Requested -> Confirmed -> Completed
+console.log("\nBOOKING STATUS");
 let bookingStatus: BookingStatus = BookingStatus.Requested;
-console.log(BookingStatus[bookingStatus]); // "Requested" -- reverse mapping
+console.log(`Booking ID: #${booking.id}`);
+console.log(`Status: ${BookingStatus[bookingStatus]}`);
+
 bookingStatus = BookingStatus.Confirmed;
-console.log(bookingStatus === BookingStatus.Confirmed); // true
+console.log(`Booking ID: #${booking.id}`);
+console.log(`Status: ${BookingStatus[bookingStatus]}`);
+
 bookingStatus = BookingStatus.Completed;
-console.log(BookingStatus[bookingStatus]); // "Completed"
-// const enum (UserRole) is inlined at compile time
-const currentUserRole: UserRole = UserRole.Tutor;
-console.log(currentUserRole); // "tutor"
+console.log(`Booking ID: #${booking.id}`);
+console.log(`Status: ${BookingStatus[bookingStatus]}`);
+
+// console.log("\n=== USER ROLES ===");
+export const currentUserRole: UserRole = UserRole.Tutor;
+// console.log(currentUserRole); // "tutor"
 
 // ===== GENERIC FUNCTIONS (Tutoring entities) =====
-function getFirstTutor<T>(items: T[]): T | undefined {
+// console.log("\n=== GENERICS (FUNCTIONS) ===");
+export function getFirstTutor<T>(items: T[]): T | undefined {
     return items[0];
 }
-function getSessionById<T extends { id: number }>(
+export function getSessionById<T extends { id: number }>(
     items: T[],
     id: number
 ): T | undefined {
     return items.find((item) => item.id === id);
 }
 // ReturnType<T> -- infer the shape from a factory function
-function makeBooking(sessionId: number, tuteeId: number) {
+export function makeBooking(sessionId: number, tuteeId: number) {
     return {
         id: Date.now(),
         sessionId,
@@ -225,40 +241,42 @@ function makeBooking(sessionId: number, tuteeId: number) {
         requestedAt: new Date(),
     };
 }
-type NewBooking = ReturnType<typeof makeBooking>;
-const testBooking: NewBooking = makeBooking(101, 2);
+export type NewBooking = ReturnType<typeof makeBooking>;
+export const testBooking: NewBooking = makeBooking(101, 2);
 
-const users: TutoringUser[] = [tutor, tutee];
-const firstTutor = getFirstTutor<TutoringUser>(users);
-const foundSession = getSessionById<Session>([session], 101);
-console.log(firstTutor?.name);    // Maria Santos
-console.log(foundSession?.subject); // Calculus
+export const users: TutoringUser[] = [tutor, tutee];
+export const firstTutor = getFirstTutor<TutoringUser>(users);
+export const foundSession = getSessionById<Session>([session], 101);
+// console.log(firstTutor?.name);    // Maria Santos
+// console.log(foundSession?.subject); // Calculus
 
 // ===== GENERIC INTERFACE: ApiResponse<T> (Tutoring) =====
-const tutorResponse: ApiResponse<TutoringUser> = {
+// console.log("\n=== GENERIC INTERFACES ===");
+export const tutorResponse: ApiResponse<TutoringUser> = {
     success: true,
     data: tutor,
 };
-const sessionListResponse: ApiResponse<Session[]> = {
+export const sessionListResponse: ApiResponse<Session[]> = {
     success: true,
     data: [session],
     message: "1 session found.",
 };
-console.log(tutorResponse.data.name);          // Maria Santos
-console.log(sessionListResponse.data.length);  // 1
+// console.log(tutorResponse.data.name);          // Maria Santos
+// console.log(sessionListResponse.data.length);  // 1
 
 // ===== USING UTILITY TYPES (Tutoring) =====
+// console.log("\n=== UTILITY TYPES & FORMATTERS ===");
 // Partial<TutoringUser> -- patch payload only needs changed fields
-const tutorPatch: TutoringUserUpdate = { bio: "Updated bio.", subjects: ["Physics"] };
+export const tutorPatch: TutoringUserUpdate = { bio: "Updated bio.", subjects: ["Physics"] };
 // Pick<TutoringUser, ...> -- lightweight card for search results
-const tutorCard: TutoringUserCard = {
+export const tutorCard: TutoringUserCard = {
     id: tutor.id,
     name: tutor.name,
     role: "tutor",
     subjects: ["Calculus", "Data Structures"],
 };
 // Omit<TutoringUser, ...> -- safe public profile
-const publicTutor: PublicTutoringUser = {
+export const publicTutor: PublicTutoringUser = {
     id: tutor.id,
     name: tutor.name,
     role: "tutor",
@@ -266,24 +284,25 @@ const publicTutor: PublicTutoringUser = {
     subjects: ["ITELECT4"],
 };
 // Record<K, number> -- booking dashboard counts
-const bookingStatusCount: BookingStatusCount = {
+export const bookingStatusCount: BookingStatusCount = {
     requested: 5,
     confirmed: 3,
     completed: 12,
     cancelled: 1,
 };
 // Partial<Session> -- edit only changed fields
-const sessionPatch: SessionUpdate = { durationMinutes: 90 };
+export const sessionPatch: SessionUpdate = { durationMinutes: 90 };
 
 // DurationFormatter -- typed function alias
-const formatDuration: DurationFormatter = (minutes) =>
+export const formatDuration: DurationFormatter = (minutes) =>
     `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
-console.log(formatDuration(90)); // 1h 30m
+// console.log(formatDuration(90)); // 1h 30m
 
 // Intersection type -- TutorWithStats
-const tutorWithStats: TutorWithStats = {
+// console.log("\n=== INTERSECTION TYPES ===");
+export const tutorWithStats: TutorWithStats = {
     ...tutor,
     upcomingSessionCount: 4,
     avgRating: 4.8,
 };
-console.log(`${tutorWithStats.name} | Rating: ${tutorWithStats.avgRating}`);
+// console.log(`${tutorWithStats.name} | Rating: ${tutorWithStats.avgRating}`);

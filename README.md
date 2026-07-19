@@ -1,38 +1,32 @@
-# PeerConnect – Peer Tutoring Booking Platform
+# React + TypeScript + Vite
 
-A TypeScript-based platform where students can sign up as tutors or tutees, post and discover tutoring sessions, and manage bookings through a clear status lifecycle (Requested → Confirmed → Completed). Built as a GT1 project for IT Elective 4 (AY 2026-2027) to demonstrate core TypeScript features including interfaces, enums, generics, type narrowing, and utility types.
+This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
-## Interfaces & Types
+Currently, two official plugins are available:
 
-Defined in `types/index.ts`:
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-**Class Demo (Part 1)**
-- `User` – user profile with a role field (`student | admin | instructor`)
-- `Course` – course subject details
-- `Submission` – assignment submission with an optional score
-- `SubmissionStatus` – enum: `Pending | Graded | Late`
-- `Role` – const enum: `Student | Admin | Instructor`
-- `ApiResponse<T>` – generic wrapper for API responses
-- `UserUpdate`, `UserPreview`, `PublicUser`, `RoleCount` – utility types
+## React Compiler
 
-**Tutoring Platform (GT1)**
-- `TutoringUser` – platform user with a role field (`tutor | tutee | admin`)
-- `Session` – tutoring session posted by a tutor
-- `Booking` – a tutee's booking tied to a session
-- `BookingStatus` – enum: `Requested | Confirmed | Completed | Cancelled`
-- `UserRole` – const enum: `Tutor | Tutee | Admin`
-- `TutoringUserUpdate`, `TutoringUserCard`, `PublicTutoringUser`, `BookingStatusCount`, `SessionUpdate` – utility types
-- `TutorWithStats` – intersection type adding live stats to a tutor
-- `DurationFormatter` – function type alias
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Setup & Running
+## Expanding the Oxlint configuration
 
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
+If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
 
-2. Run the app:
-   ```bash
-   npx ts-node src/index.ts
-   ```
+```json
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "oxc"],
+  "options": {
+    "typeAware": true
+  },
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/only-export-components": ["warn", { "allowConstantExport": true }]
+  }
+}
+```
+
+See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.

@@ -3,12 +3,24 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "description": "A TypeScript-based platform where students can sign up as tutors or tutees, post and discover tutoring sessions, and manage bookings through a clear status lifecycle (Requested → Confirmed → Completed). Built as a GT1 project for IT Elective 4 (AY 2026-2027) to demonstrate core TypeScript features including interfaces, enums, generics, type narrowing, and utility types.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tobskie/itelect4-project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tobskie/itelect4-project/issues"
+  },
+  "homepage": "https://github.com/tobskie/itelect4-project#readme",
   "dependencies": {
     "react": "^19.2.7",
     "react-dom": "^19.2.7"

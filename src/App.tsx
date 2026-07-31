@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import type { ChangeEvent } from "react";
 import TutorCard from "./components/TutorCard";
 import SessionCard from "./components/SessionCard";
 import BookingStatusCard from "./components/BookingStatusCard";
 import type { TutoringUser, Session, Booking } from "./types/index";
 import { BookingStatus } from "./types/index";
+import useToggle from "./hooks/useToggle";
+import usePrevious from "./hooks/usePrevious";
 import "./App.css";
 
 // Mock Tutors
@@ -59,27 +62,87 @@ const mockSessions: Session[] = [
   },
 ];
 
+// Mock Bookings
+const mockBookings: Booking[] = [
+  {
+    id: 201,
+    sessionId: 101,
+    tuteeId: 3,
+    status: BookingStatus.Requested,
+    requestedAt: new Date(),
+    notes: "Please cover React component props typing.",
+  },
+  {
+    id: 202,
+    sessionId: 102,
+    tuteeId: 3,
+    status: BookingStatus.Confirmed,
+    requestedAt: new Date(),
+    notes: "Need help with trig integration.",
+  },
+];
+
 export default function App() {
+  // ===== TYPED STATE WITH useState<T> =====
+  // useState<T> -- T is the type of the state value
   const [selectedTutor, setSelectedTutor] = useState<TutoringUser | null>(null);
-  const [bookings, setBookings] = useState<Booking[]>([
-    {
-      id: 201,
-      sessionId: 101,
-      tuteeId: 3,
-      status: BookingStatus.Requested,
-      requestedAt: new Date(),
-      notes: "Please cover React component props typing.",
-    },
-    {
-      id: 202,
-      sessionId: 102,
-      tuteeId: 3,
-      status: BookingStatus.Confirmed,
-      requestedAt: new Date(),
-      notes: "Need help with trig integration.",
-    }
-  ]);
+
+  // Array state -- starts empty, filled after "loading"
+  const [tutors, setTutors] = useState<TutoringUser[]>([]);
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+
+  // The signed-in tutee -- object state, not a hard-coded JSX value
+  const [currentTutee] = useState<TutoringUser>(mockTutee);
+
+  // Boolean state -- tracks whether data has finished loading
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
   const [feedback, setFeedback] = useState<string>("");
+
+  // ===== TYPED DOM REFERENCE WITH useRef =====
+  // useRef<T>(null) -- T is the DOM element type
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // ===== TYPED DOM EVENTS INSIDE HOOKS =====
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
+  // ===== CUSTOM HOOKS =====
+  // useToggle -- tuple of [current value, toggle function]
+  const [showDetails, toggleDetails] = useToggle(false);
+  // usePrevious<T> -- T is inferred as string from searchTerm
+  const previousSearch = usePrevious(searchTerm);
+
+  // ===== LOADING MOCK DATA WITH useEffect =====
+  // useEffect(fn, deps) -- fn runs after render;
+  // an empty deps array [] means "run once, on mount"
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Reusing GT1's mock data as the "fetched" result
+      setTutors(mockTutors);
+      setSessions(mockSessions);
+      setBookings(mockBookings);
+      setIsLoading(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // ChangeEvent<HTMLInputElement> types e.target as an <input>
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Focus the input programmatically (e.g. after loading finishes)
+  const focusSearch = (): void => {
+    searchInputRef.current?.focus();
+  };
+
+  // Once the "fetch" is done the input is mounted, so it can take focus
+  useEffect(() => {
+    if (!isLoading) {
+      focusSearch();
+    }
+  }, [isLoading]);
 
   const handleSelectTutor = (tutor: TutoringUser): void => {
     setSelectedTutor(tutor);
@@ -87,7 +150,7 @@ export default function App() {
   };
 
   const handleBookSession = (sessionId: number): void => {
-    const session = mockSessions.find((s) => s.id === sessionId);
+    const session = sessions.find((s) => s.id === sessionId);
     if (!session) return;
 
     if (bookings.some((b) => b.sessionId === sessionId && b.status !== BookingStatus.Cancelled)) {
@@ -98,7 +161,7 @@ export default function App() {
     const newBooking: Booking = {
       id: Date.now(),
       sessionId: session.id,
-      tuteeId: mockTutee.id,
+      tuteeId: currentTutee.id,
       status: BookingStatus.Requested,
       requestedAt: new Date(),
       notes: "",
@@ -130,9 +193,19 @@ export default function App() {
   };
 
   const getSessionSubject = (sessionId: number): string => {
-    const session = mockSessions.find((s) => s.id === sessionId);
+    const session = sessions.find((s) => s.id === sessionId);
     return session ? session.subject : "Unknown";
   };
+
+  // Derived value -- recomputed every render, not stored in state
+  const filteredSessions = sessions.filter((s) =>
+    s.subject.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Early return -- render a placeholder until the "fetch" finishes
+  if (isLoading) {
+    return <p className="loading-message">Loading sessions...</p>;
+  }
 
   return (
     <div className="app-container">
@@ -150,10 +223,10 @@ export default function App() {
             <h2 className="section-title">
               <span>👥</span> Tutors Directory
             </h2>
-            <span className="section-counter">{mockTutors.length} available</span>
+            <span className="section-counter">{tutors.length} available</span>
           </div>
           <div className="cards-grid">
-            {mockTutors.map((tutor) => (
+            {tutors.map((tutor) => (
               <TutorCard key={tutor.id} tutor={tutor} onSelect={handleSelectTutor} />
             ))}
           </div>
@@ -163,6 +236,19 @@ export default function App() {
               <p>
                 <strong>{selectedTutor.name}</strong> ({selectedTutor.email})
               </p>
+              {/* useToggle drives this collapsible detail panel */}
+              <button type="button" className="toggle-button" onClick={toggleDetails}>
+                {showDetails ? "Hide details" : "Show details"}
+              </button>
+              {showDetails && (
+                <div className="tutor-details">
+                  <p>{selectedTutor.bio ?? "No bio provided."}</p>
+                  <p>
+                    <strong>Subjects:</strong>{" "}
+                    {selectedTutor.subjects?.join(", ") ?? "None listed"}
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </section>
@@ -173,20 +259,36 @@ export default function App() {
             <h2 className="section-title">
               <span>📅</span> Schedule a Session
             </h2>
-            <span className="section-counter">{mockSessions.length} sessions</span>
+            <span className="section-counter">{filteredSessions.length} sessions</span>
           </div>
+          <input
+            ref={searchInputRef}
+            value={searchTerm}
+            onChange={handleSearchChange}
+            type="text"
+            className="search-input"
+            placeholder="Search sessions..."
+          />
+          {/* usePrevious remembers the search term from the last render */}
+          {previousSearch !== undefined && previousSearch !== "" && previousSearch !== searchTerm && (
+            <p className="previous-search">Previous search: "{previousSearch}"</p>
+          )}
           <div className="cards-grid">
-            {mockSessions.map((session) => {
-              const tutor = mockTutors.find((t) => t.id === session.tutorId);
-              return (
-                <SessionCard
-                  key={session.id}
-                  session={session}
-                  tutorName={tutor ? tutor.name : "Unknown"}
-                  onBook={handleBookSession}
-                />
-              );
-            })}
+            {filteredSessions.length > 0 ? (
+              filteredSessions.map((session) => {
+                  const tutor = tutors.find((t) => t.id === session.tutorId);
+                return (
+                  <SessionCard
+                    key={session.id}
+                    session={session}
+                    tutorName={tutor ? tutor.name : "Unknown"}
+                    onBook={handleBookSession}
+                  />
+                );
+              })
+            ) : (
+              <p className="no-bookings">No sessions match "{searchTerm}".</p>
+            )}
           </div>
         </section>
 
@@ -194,7 +296,7 @@ export default function App() {
         <section className="app-section bookings-section">
           <div className="section-header-area">
             <h2 className="section-title">
-              <span>📋</span> Booking Status ({mockTutee.name})
+              <span>📋</span> Booking Status ({currentTutee.name})
             </h2>
             <span className="section-counter">{bookings.length} total</span>
           </div>
@@ -205,7 +307,7 @@ export default function App() {
                   key={booking.id}
                   booking={booking}
                   subjectName={getSessionSubject(booking.sessionId)}
-                  tuteeName={mockTutee.name}
+                  tuteeName={currentTutee.name}
                   onCancel={handleCancelBooking}
                   onNotesChange={handleNotesChange}
                 />

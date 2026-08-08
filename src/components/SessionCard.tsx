@@ -50,7 +50,7 @@ export default function SessionCard({ session, tutorName, onBook, variant = "def
                 </div>
             ) : (
                 /* Full Details Grid */
-                <div className="grid grid-cols-2 gap-2.5 bg-slate-50 dark:bg-slate-950/30 p-3 rounded-2xl border border-slate-200/20 dark:border-slate-800/20">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-2.5 bg-slate-50 dark:bg-slate-950/30 p-3 rounded-2xl border border-slate-200/20 dark:border-slate-800/20">
                     <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
                         <span className="text-sm">📅</span>
                         <span>
@@ -70,7 +70,7 @@ export default function SessionCard({ session, tutorName, onBook, variant = "def
                             })}
                         </span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 col-span-2">
+                    <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 sm:col-span-2 lg:col-span-1 xl:col-span-2">
                         <span className="text-sm">⏳</span>
                         <span>{session.durationMinutes} minutes duration</span>
                     </div>

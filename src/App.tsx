@@ -216,10 +216,15 @@ export default function App() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {[1, 2, 3].map((col) => (
-            <div key={col} className="flex flex-col gap-5 p-6 rounded-3xl border border-slate-200/60 bg-white/40 dark:border-slate-800/80 dark:bg-slate-900/30 animate-pulse">
+            <div 
+              key={col} 
+              className={`flex flex-col gap-5 p-6 rounded-3xl border border-slate-200/60 bg-white/40 dark:border-slate-800/80 dark:bg-slate-900/30 animate-pulse ${
+                col === 3 ? "col-span-1 sm:col-span-2 lg:col-span-1" : "col-span-1"
+              }`}
+            >
               <div className="flex justify-between items-center mb-2">
                 <div className="h-6 w-36 bg-slate-200 dark:bg-slate-800 rounded-lg"></div>
-                <div className="h-5 w-16 bg-slate-150 dark:bg-slate-850 rounded-full"></div>
+                <div className="h-5 w-16 bg-slate-150 dark:bg-slate-855 rounded-full"></div>
               </div>
               <div className="h-28 bg-slate-100 dark:bg-slate-900/60 rounded-2xl"></div>
               <div className="h-28 bg-slate-100 dark:bg-slate-900/60 rounded-2xl"></div>
@@ -445,7 +450,7 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
             {bookings.length > 0 ? (
               bookings.map((booking) => (
                 <BookingStatusCard

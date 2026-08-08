@@ -73,19 +73,19 @@ export default function BookingStatusCard({
                 </span>
             </div>
             
-            <div className="text-xs text-slate-600 dark:text-slate-400 flex flex-col gap-2.5 text-left">
-                <p className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800/60 pb-1.5">
-                    <span className="text-slate-400 dark:text-slate-500 font-semibold">Subject</span> 
-                    <span className="font-bold text-slate-800 dark:text-slate-200">{subjectName}</span>
-                </p>
-                <p className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800/60 pb-1.5">
-                    <span className="text-slate-400 dark:text-slate-500 font-semibold">Tutee</span> 
-                    <span className="font-semibold text-slate-700 dark:text-slate-350">{tuteeName}</span>
-                </p>
-                <p className="flex justify-between items-center text-[10px] text-slate-400 dark:text-slate-500">
-                    <span>Requested Date</span> 
-                    <span>{booking.requestedAt.toLocaleDateString()}</span>
-                </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-3.5 text-xs text-slate-600 dark:text-slate-400 text-left">
+                <div className="flex flex-col justify-between sm:border-b-0 sm:pb-0 border-b border-slate-100 dark:border-slate-800/60 pb-1.5">
+                    <span className="text-slate-400 dark:text-slate-500 font-semibold text-[10px] uppercase tracking-wider">Subject</span> 
+                    <span className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">{subjectName}</span>
+                </div>
+                <div className="flex flex-col justify-between sm:border-b-0 sm:pb-0 border-b border-slate-100 dark:border-slate-800/60 pb-1.5">
+                    <span className="text-slate-400 dark:text-slate-500 font-semibold text-[10px] uppercase tracking-wider">Tutee</span> 
+                    <span className="font-semibold text-slate-700 dark:text-slate-350 mt-0.5">{tuteeName}</span>
+                </div>
+                <div className="flex flex-col justify-between">
+                    <span className="text-slate-400 dark:text-slate-500 font-semibold text-[10px] uppercase tracking-wider">Requested Date</span> 
+                    <span className="font-medium text-slate-500 dark:text-slate-400 mt-0.5">{booking.requestedAt.toLocaleDateString()}</span>
+                </div>
             </div>
             
             {isCompact ? (

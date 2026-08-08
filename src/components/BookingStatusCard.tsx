@@ -8,6 +8,7 @@ export interface BookingStatusCardProps {
     tuteeName: string;
     onCancel: (bookingId: number) => void;
     onNotesChange: (bookingId: number, notes: string) => void;
+    variant?: "default" | "compact";
 }
 
 export default function BookingStatusCard({
@@ -15,14 +16,15 @@ export default function BookingStatusCard({
     subjectName,
     tuteeName,
     onCancel,
-    onNotesChange
+    onNotesChange,
+    variant = "default"
 }: BookingStatusCardProps) {
     const handleCancelClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
         e.preventDefault();
         onCancel(booking.id);
     };
 
-    const handleNotesChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const handleNotesInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
         onNotesChange(booking.id, e.target.value);
     };
 
@@ -41,52 +43,82 @@ export default function BookingStatusCard({
         }
     };
 
-    const getStatusClass = (status: BookingStatus): string => {
+    const getStatusStyles = (status: BookingStatus): string => {
         switch (status) {
             case BookingStatus.Requested:
-                return "status-requested";
+                return "bg-amber-50 text-amber-700 border border-amber-200/50 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-900/30";
             case BookingStatus.Confirmed:
-                return "status-confirmed";
+                return "bg-emerald-50 text-emerald-700 border border-emerald-200/50 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/30";
             case BookingStatus.Completed:
-                return "status-completed";
+                return "bg-blue-50 text-blue-700 border border-blue-200/50 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-900/30";
             case BookingStatus.Cancelled:
-                return "status-cancelled";
+                return "bg-rose-50 text-rose-700 border border-rose-200/50 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-900/30";
             default:
-                return "";
+                return "bg-slate-50 text-slate-655 dark:bg-slate-900 dark:text-slate-400 border border-slate-200 dark:border-slate-800";
         }
     };
 
+    const isCompact = variant === "compact";
+
     return (
-        <div className="booking-card">
-            <div className="booking-header">
-                <span className="booking-id">Booking #{booking.id}</span>
-                <span className={`booking-status-badge ${getStatusClass(booking.status)}`}>
+        <div className={`bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-slate-200/60 dark:border-slate-800/80 rounded-3xl flex flex-col transition-all duration-300 hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900/50 ${
+            isCompact ? "p-4 gap-3" : "p-5 gap-4"
+        }`}>
+            <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-400 dark:text-slate-500">
+                    Booking #{booking.id}
+                </span>
+                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider border ${getStatusStyles(booking.status)}`}>
                     {getStatusLabel(booking.status)}
                 </span>
             </div>
-            <div className="booking-info">
-                <p><strong>Subject:</strong> {subjectName}</p>
-                <p><strong>Tutee:</strong> {tuteeName}</p>
-                <p className="booking-date"><strong>Requested:</strong> {booking.requestedAt.toLocaleDateString()}</p>
+            
+            <div className="text-xs text-slate-600 dark:text-slate-400 flex flex-col gap-2.5 text-left">
+                <p className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800/60 pb-1.5">
+                    <span className="text-slate-400 dark:text-slate-500 font-semibold">Subject</span> 
+                    <span className="font-bold text-slate-800 dark:text-slate-200">{subjectName}</span>
+                </p>
+                <p className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800/60 pb-1.5">
+                    <span className="text-slate-400 dark:text-slate-500 font-semibold">Tutee</span> 
+                    <span className="font-semibold text-slate-700 dark:text-slate-350">{tuteeName}</span>
+                </p>
+                <p className="flex justify-between items-center text-[10px] text-slate-400 dark:text-slate-500">
+                    <span>Requested Date</span> 
+                    <span>{booking.requestedAt.toLocaleDateString()}</span>
+                </p>
             </div>
             
-            <div className="booking-notes-section">
-                <label htmlFor={`notes-${booking.id}`} className="notes-label">Booking Notes:</label>
-                <input 
-                    id={`notes-${booking.id}`}
-                    type="text" 
-                    className="booking-notes-input"
-                    value={booking.notes || ""} 
-                    onChange={handleNotesChange}
-                    placeholder="E.g., Topics to discuss..."
-                />
-            </div>
+            {isCompact ? (
+                /* Compact Read-Only Notes */
+                booking.notes && (
+                    <div className="text-[11px] text-slate-500 dark:text-slate-400 italic bg-slate-50/50 dark:bg-slate-950/20 px-2.5 py-1.5 rounded-xl border border-slate-200/10 dark:border-slate-800/10 text-left">
+                        Note: "{booking.notes}"
+                    </div>
+                )
+            ) : (
+                /* Default Editable Notes Input */
+                <div className="flex flex-col gap-1.5 text-left mt-1">
+                    <label htmlFor={`notes-${booking.id}`} className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                        Booking Notes
+                    </label>
+                    <input 
+                        id={`notes-${booking.id}`}
+                        type="text" 
+                        className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950/40 text-slate-800 dark:text-slate-100 placeholder-slate-400 border border-slate-200/65 dark:border-slate-800/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 shadow-inner"
+                        value={booking.notes || ""} 
+                        onChange={handleNotesInputChange}
+                        placeholder="E.g., Topics to discuss..."
+                    />
+                </div>
+            )}
 
             {booking.status !== BookingStatus.Cancelled && booking.status !== BookingStatus.Completed && (
-                <div className="booking-actions">
+                <div className="flex justify-end mt-1">
                     <button 
                         onClick={handleCancelClick}
-                        className="cancel-booking-btn"
+                        className={`border border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-900/40 dark:text-rose-400 dark:hover:bg-rose-950/20 font-semibold transition-colors duration-200 cursor-pointer ${
+                            isCompact ? "px-3 py-1 text-[11px] rounded-lg" : "px-3.5 py-1.5 text-xs rounded-xl"
+                        }`}
                     >
                         Cancel Booking
                     </button>
@@ -95,3 +127,4 @@ export default function BookingStatusCard({
         </div>
     );
 }
+

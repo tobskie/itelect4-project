@@ -182,3 +182,45 @@ export type TutorWithStats = TutoringUser & {
     upcomingSessionCount: number;
     avgRating: number;
 };
+
+
+// ============================================================
+// ----- SESSION 7 -- THE SHAPES THE API ACTUALLY RETURNS -----
+// ============================================================
+// JSON has no Date, and json-server writes every id as a string. So what
+// comes back over HTTP is NOT the shape declared above. All three types are
+// DERIVED from the originals, so those stay the single source of truth --
+// add a field there and these inherit it.
+// Omit is from GT1 Part 2. The & intersection is from GT1 Part 1.
+
+// GET /tutors -- only the id differs from TutoringUser
+export type ApiUser = Omit<TutoringUser, "id"> & {
+    id: string;             // json-server ids are strings: "1", "z4U3v8og06g"
+};
+
+// GET /sessions -- ids are strings and scheduledAt is an ISO string
+export type ApiSession = Omit<Session, "id" | "tutorId" | "scheduledAt"> & {
+    id: string;
+    tutorId: string;        // matches ApiUser["id"], so the join still works
+    scheduledAt: string;    // an ISO string, never a Date object
+};
+
+// GET /bookings -- same treatment for every id and every timestamp
+export type ApiBooking = Omit<
+    Booking,
+    "id" | "sessionId" | "tuteeId" | "requestedAt" | "confirmedAt" | "completedAt"
+> & {
+    id: string;
+    sessionId: string;
+    tuteeId: string;
+    requestedAt: string;
+    confirmedAt?: string;
+    completedAt?: string;
+};
+
+// What we SEND when creating one. No id yet -- the server makes it.
+export type NewBooking = Omit<ApiBooking, "id">;
+
+// What we SEND when editing one: PATCH only needs the changed fields.
+// Partial is from GT1 Part 2, and the id is excluded because it is in the URL.
+export type BookingPatch = Partial<Omit<ApiBooking, "id">>;

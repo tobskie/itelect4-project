@@ -1,36 +1,51 @@
 // src/pages/SessionsPage.tsx
-// GT2's "Sessions Schedule" column: the search box, the useRef autofocus and
-// the usePrevious hint all move here unchanged.
-import { useState, useEffect, useRef } from "react";
+// SESSION 7: the list is fetched instead of imported, the search term moved out
+// of useState into the UI store, and booking one really POSTs to the API.
+import { useState } from "react";
 import type { ChangeEvent } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router";
+import type { ApiSession, ApiUser } from "../types/index";
 import SessionCard from "../components/SessionCard";
 import usePrevious from "../hooks/usePrevious";
-import { allSessions, getTutorName } from "../data/mockData";
-import useBookingStore from "../store/bookingStore";
+import useRequestBooking from "../hooks/useRequestBooking";
+import { fetchSessions, fetchTutors } from "../api/client";
+import useUiStore from "../store/uiStore";
 
 function SessionsPage() {
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  // The banner is the only thing left that is genuinely local to this page.
   const [feedback, setFeedback] = useState<string>("");
 
-  // A typed DOM reference -- null until React attaches the input
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  // The search box now reads and writes the store, not local state -- and the
+  // useRef that used to autofocus it went with it.
+  const searchTerm = useUiStore((state) => state.searchTerm);
+  const setSearchTerm = useUiStore((state) => state.setSearchTerm);
+  const cardVariant = useUiStore((state) => state.cardVariant);
   const previousSearch = usePrevious(searchTerm);
 
-  const cardVariant = useBookingStore((state) => state.cardVariant);
-  const requestBooking = useBookingStore((state) => state.requestBooking);
+  const { data, isPending, isError, error } = useQuery<ApiSession[]>({
+    queryKey: ["sessions"],
+    queryFn: fetchSessions,
+  });
 
-  // Focus the search box as soon as the page mounts
-  useEffect(() => {
-    searchInputRef.current?.focus();
-  }, []);
+  // The card wants a tutor NAME, and a session only carries a tutorId. Asking
+  // for ["tutors"] here costs nothing: TutorsPage has usually already filled
+  // that cache entry, and if not, both pages share this one request.
+  const { data: tutors } = useQuery<ApiUser[]>({
+    queryKey: ["tutors"],
+    queryFn: fetchTutors,
+  });
+
+  const { requestBooking } = useRequestBooking();
+
+  const getTutorName = (tutorId: string): string =>
+    tutors?.find((t) => t.id === tutorId)?.name ?? "Unknown";
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setSearchTerm(e.target.value);
   };
 
-  // The store does the duplicate check and hands back the message to show
-  const handleBookSession = (sessionId: number): void => {
+  const handleBookSession = (sessionId: string): void => {
     const message = requestBooking(sessionId);
     setFeedback(message);
     setTimeout(() => {
@@ -38,8 +53,35 @@ function SessionsPage() {
     }, 4000);
   };
 
+  if (isPending) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
+        {[1, 2, 3].map((slot) => (
+          <div
+            key={slot}
+            className="h-56 rounded-3xl border border-slate-200/60 bg-white/40 dark:border-slate-800/80 dark:bg-slate-900/30"
+          />
+        ))}
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="rounded-2xl border border-red-200 bg-red-50 dark:border-red-900/40 dark:bg-red-950/20 p-5">
+        <h2 className="text-sm font-bold text-red-700 dark:text-red-400">
+          {error.message}
+        </h2>
+        <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+          Is json-server running on port 3001? Start it with{" "}
+          <code className="font-mono">npm run api</code>.
+        </p>
+      </div>
+    );
+  }
+
   // Derived value -- filter, never a second piece of state
-  const filteredSessions = allSessions.filter((s) =>
+  const filteredSessions = data.filter((s) =>
     s.subject.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -66,7 +108,6 @@ function SessionsPage() {
 
       <div className="relative max-w-md">
         <input
-          ref={searchInputRef}
           value={searchTerm}
           onChange={handleSearchChange}
           type="text"

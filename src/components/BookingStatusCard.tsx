@@ -1,13 +1,15 @@
-import type { Booking } from "../types/index";
+// SESSION 7: this booking came back from the API, so ids are strings and
+// requestedAt is an ISO string rather than a Date.
+import type { ApiBooking } from "../types/index";
 import { BookingStatus } from "../types/index";
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 export interface BookingStatusCardProps {
-    booking: Booking;
+    booking: ApiBooking;                                    // <-- was Booking
     subjectName: string;
     tuteeName: string;
-    onCancel: (bookingId: number) => void;
-    onNotesChange: (bookingId: number, notes: string) => void;
+    onCancel: (bookingId: string) => void;                  // <-- string id
+    onNotesChange: (bookingId: string, notes: string) => void;
     variant?: "default" | "compact";
 }
 
@@ -19,13 +21,33 @@ export default function BookingStatusCard({
     onNotesChange,
     variant = "default"
 }: BookingStatusCardProps) {
+    // The note is now a DRAFT held here while you type, and only sent to the
+    // server when you leave the box. Firing a PATCH on every keystroke would
+    // mean one request per letter.
+    const [draftNotes, setDraftNotes] = useState<string>(booking.notes ?? "");
+
+    // If the saved note changes underneath us -- a refetch after the save, or
+    // another tab -- take the server's version as the new starting point.
+    useEffect(() => {
+        setDraftNotes(booking.notes ?? "");
+    }, [booking.notes]);
+
+    const requestedAt = new Date(booking.requestedAt);
+
     const handleCancelClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
         e.preventDefault();
         onCancel(booking.id);
     };
 
     const handleNotesInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-        onNotesChange(booking.id, e.target.value);
+        setDraftNotes(e.target.value);
+    };
+
+    // onBlur: the user has finished typing, so now it is worth a request.
+    const handleNotesBlur = (): void => {
+        if (draftNotes !== (booking.notes ?? "")) {
+            onNotesChange(booking.id, draftNotes);
+        }
     };
 
     const getStatusLabel = (status: BookingStatus): string => {
@@ -84,7 +106,7 @@ export default function BookingStatusCard({
                 </div>
                 <div className="flex flex-col justify-between">
                     <span className="text-slate-400 dark:text-slate-500 font-semibold text-[10px] uppercase tracking-wider">Requested Date</span> 
-                    <span className="font-medium text-slate-500 dark:text-slate-400 mt-0.5">{booking.requestedAt.toLocaleDateString()}</span>
+                    <span className="font-medium text-slate-500 dark:text-slate-400 mt-0.5">{requestedAt.toLocaleDateString()}</span>
                 </div>
             </div>
             
@@ -105,8 +127,9 @@ export default function BookingStatusCard({
                         id={`notes-${booking.id}`}
                         type="text" 
                         className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950/40 text-slate-800 dark:text-slate-100 placeholder-slate-400 border border-slate-200/65 dark:border-slate-800/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 shadow-inner"
-                        value={booking.notes || ""} 
+                        value={draftNotes}
                         onChange={handleNotesInputChange}
+                        onBlur={handleNotesBlur}
                         placeholder="E.g., Topics to discuss..."
                     />
                 </div>

@@ -1,0 +1,91 @@
+{
+  "tutors": [
+    {
+      "id": "1",
+      "name": "Toby Olimpo",
+      "email": "tobster@example.com",
+      "role": "tutor",
+      "isActive": true,
+      "bio": "4th yr BSIT Student. magaling sya, oo hehehe.",
+      "subjects": [
+        "ITELECT4",
+        "Data Structures",
+        "Next.js"
+      ]
+    },
+    {
+      "id": "2",
+      "name": "Rio Amor",
+      "email": "rioamor@example.com",
+      "role": "tutor",
+      "isActive": false,
+      "bio": "3rd yr BSIT Student. magaling din sya",
+      "subjects": [
+        "ITELECT4",
+        "Data Structures",
+        "Next.js"
+      ]
+    },
+    {
+      "id": "3",
+      "name": "Mika Reyes",
+      "email": "mikareyes@example.com",
+      "role": "tutor",
+      "isActive": true,
+      "bio": "2nd yr BSCS Student. Calculus and Physics tutor since 1st year.",
+      "subjects": [
+        "Calculus",
+        "Physics"
+      ]
+    }
+  ],
+  "sessions": [
+    {
+      "id": "101",
+      "tutorId": "1",
+      "subject": "ITELECT4",
+      "description": "Vite + React + TS Component Scaffolding Lab",
+      "scheduledAt": "2026-07-20T14:00:00.000Z",
+      "durationMinutes": 60,
+      "maxSlots": 3
+    },
+    {
+      "id": "102",
+      "tutorId": "3",
+      "subject": "Calculus",
+      "description": "Integration Techniques & Practical Review",
+      "scheduledAt": "2026-07-22T09:30:00.000Z",
+      "durationMinutes": 90,
+      "maxSlots": 5
+    },
+    {
+      "id": "103",
+      "tutorId": "2",
+      "subject": "Data Structures",
+      "description": "Linked Lists, Stacks and Queues walkthrough",
+      "scheduledAt": "2026-07-25T13:00:00.000Z",
+      "durationMinutes": 60,
+      "maxSlots": 4
+    }
+  ],
+  "bookings": [
+    {
+      "id": "201",
+      "sessionId": "101",
+      "tuteeId": "4",
+      "status": 3,
+      "requestedAt": "2026-07-15T08:00:00.000Z",
+      "notes": "Please cover React component props typing."
+    },
+    {
+      "id": "202",
+      "sessionId": "102",
+      "tuteeId": "4",
+      "status": 1,
+      "requestedAt": "2026-07-16T10:30:00.000Z",
+      "confirmedAt": "2026-07-16T12:00:00.000Z",
+      "notes": "Need help with trig integration."
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

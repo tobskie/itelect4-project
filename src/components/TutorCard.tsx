@@ -1,13 +1,17 @@
-import type { TutoringUser } from "../types/index";
+// SESSION 7: the tutor on this card came out of an HTTP response, so the prop
+// type says so. Left as TutoringUser it would be describing a number id that is
+// really a string -- wrong, and completely silent.
+import type { ApiUser } from "../types/index";
 import React from "react";
 
 export interface TutorCardProps {
-    tutor: TutoringUser;
-    onSelect: (tutor: TutoringUser) => void;
+    tutor: ApiUser;                        // <-- was TutoringUser
+    onSelect: (tutor: ApiUser) => void;    // <-- was TutoringUser
     variant?: "default" | "compact";
 }
 
 export default function TutorCard({ tutor, onSelect, variant = "default" }: TutorCardProps) {
+    // The card reports upward; the page decides what selecting a tutor means.
     const handleSelectClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
         e.preventDefault();
         onSelect(tutor);

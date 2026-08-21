@@ -1,40 +1,30 @@
 // src/components/Layout.tsx
 // The frame every page renders inside: the header, the nav bar, the global
 // controls, and the <Outlet /> hole the matched child route fills.
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { NavLink, Outlet } from "react-router";
 import useAuthStore from "../store/authStore";
-import useBookingStore from "../store/bookingStore";
+import useUiStore from "../store/uiStore";
 
 function Layout() {
-  // Dark mode MOVES here, out of GT2's App.tsx, so every page inherits it
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      return (
-        document.documentElement.classList.contains("dark") ||
-        localStorage.getItem("theme") === "dark"
-      );
-    }
-    return false;
-  });
+  // SESSION 7: Layout no longer OWNS dark mode. It used to hold the flag in
+  // useState and write localStorage by hand; both jobs moved to the persisted
+  // uiStore, so this component just reads the answer.
+  const isDarkMode = useUiStore((state) => state.isDarkMode);
+  const toggleDarkMode = useUiStore((state) => state.toggleDarkMode);
+  const cardVariant = useUiStore((state) => state.cardVariant);
+  const setCardVariant = useUiStore((state) => state.setCardVariant);
 
-  // Sync the state with the <html> class, which is what Tailwind's dark:
-  // variant looks for -- see @custom-variant dark in src/index.css
+  // Still needed: the store holds a boolean, but Tailwind's dark: variant looks
+  // for a class on <html> -- see @custom-variant dark in src/index.css. This
+  // effect is the one line that connects the two.
   useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
+    document.documentElement.classList.toggle("dark", isDarkMode);
   }, [isDarkMode]);
 
   // Read only what this component needs out of each store
   const userName = useAuthStore((state) => state.userName);
   const logout = useAuthStore((state) => state.logout);
-  const cardVariant = useBookingStore((state) => state.cardVariant);
-  const setCardVariant = useBookingStore((state) => state.setCardVariant);
 
   // The classes every nav link shares, then the two variants
   const base =
@@ -64,7 +54,7 @@ function Layout() {
                 Peer Booking Platform
               </h1>
               <p className="text-xs font-bold tracking-widest text-slate-400 dark:text-slate-500 uppercase mt-1">
-                ITELECT4 - GT3 PART 1
+                ITELECT4 - GT3 PART 2
               </p>
             </div>
 
@@ -86,7 +76,7 @@ function Layout() {
               </div>
 
               <button
-                onClick={() => setIsDarkMode(!isDarkMode)}
+                onClick={toggleDarkMode}
                 aria-label="Toggle theme"
                 className="flex items-center justify-center h-9 w-9 rounded-xl border border-slate-200/60 dark:border-slate-800/80 bg-white hover:bg-slate-50 text-slate-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/50 transition-all duration-200 cursor-pointer shadow-sm"
               >

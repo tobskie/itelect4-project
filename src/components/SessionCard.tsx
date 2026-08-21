@@ -1,10 +1,12 @@
-import type { Session } from "../types/index";
+// SESSION 7: this session arrived as JSON, where ids are strings and there is
+// no Date type at all -- scheduledAt is text until we parse it.
+import type { ApiSession } from "../types/index";
 import React from "react";
 
 export interface SessionCardProps {
-    session: Session;
+    session: ApiSession;                    // <-- was Session
     tutorName: string;
-    onBook: (sessionId: number) => void;
+    onBook: (sessionId: string) => void;    // <-- id is a string now
     variant?: "default" | "compact";
 }
 
@@ -13,6 +15,11 @@ export default function SessionCard({ session, tutorName, onBook, variant = "def
         e.preventDefault();
         onBook(session.id);
     };
+
+    // Parse the ISO string ONCE, here, instead of at all three places below.
+    // Calling .toLocaleDateString() straight on session.scheduledAt would be a
+    // runtime TypeError: it is a string, and strings have no such method.
+    const scheduledAt = new Date(session.scheduledAt);
 
     const isCompact = variant === "compact";
 
@@ -42,9 +49,9 @@ export default function SessionCard({ session, tutorName, onBook, variant = "def
             {isCompact ? (
                 /* Compact Inline Details */
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50/50 dark:bg-slate-950/20 px-2.5 py-1.5 rounded-xl border border-slate-200/10 dark:border-slate-800/10">
-                    <span>📅 {session.scheduledAt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                    <span>📅 {scheduledAt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
                     <span>•</span>
-                    <span>🕒 {session.scheduledAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span>🕒 {scheduledAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                     <span>•</span>
                     <span>⏳ {session.durationMinutes}m</span>
                 </div>
@@ -54,7 +61,7 @@ export default function SessionCard({ session, tutorName, onBook, variant = "def
                     <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
                         <span className="text-sm">📅</span>
                         <span>
-                            {session.scheduledAt.toLocaleDateString(undefined, { 
+                            {scheduledAt.toLocaleDateString(undefined, { 
                                 weekday: 'short', 
                                 month: 'short', 
                                 day: 'numeric' 
@@ -64,7 +71,7 @@ export default function SessionCard({ session, tutorName, onBook, variant = "def
                     <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
                         <span className="text-sm">🕒</span>
                         <span>
-                            {session.scheduledAt.toLocaleTimeString([], { 
+                            {scheduledAt.toLocaleTimeString([], { 
                                 hour: '2-digit', 
                                 minute: '2-digit' 
                             })}

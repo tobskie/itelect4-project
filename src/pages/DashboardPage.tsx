@@ -1,28 +1,36 @@
 // src/pages/DashboardPage.tsx
-// The overview screen. GT2's 800ms fake-loading skeleton moves here, because
-// this is the page that summarises everything.
-import { useState, useEffect } from "react";
+// The overview screen.
+// SESSION 7: GT2's 800ms fake-loading setTimeout is GONE. The skeleton is now
+// driven by three real requests -- and because all three keys are shared with
+// the pages below, arriving here warms their caches for free.
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router";
-import { allTutors, allSessions, currentTutee } from "../data/mockData";
+import type { ApiBooking, ApiSession, ApiUser } from "../types/index";
 import { BookingStatus } from "../types/index";
-import useBookingStore from "../store/bookingStore";
+import { currentTutee } from "../data/mockData";
+import { fetchTutors, fetchSessions, fetchBookings } from "../api/client";
 
 function DashboardPage() {
-  // Straight from GT2's App.tsx: a typed loading flag driven by useEffect
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const bookings = useBookingStore((state) => state.bookings);
+  const tutors = useQuery<ApiUser[]>({
+    queryKey: ["tutors"],
+    queryFn: fetchTutors,
+  });
+  const sessions = useQuery<ApiSession[]>({
+    queryKey: ["sessions"],
+    queryFn: fetchSessions,
+  });
+  const bookings = useQuery<ApiBooking[]>({
+    queryKey: ["bookings"],
+    queryFn: fetchBookings,
+  });
 
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 800);
-    return () => clearTimeout(timer); // cleanup, so a fast navigation is safe
-  }, []);
+  // isPending means "no data yet, ever" -- not the same as isFetching, which is
+  // also true during a background refresh while old data is still on screen.
+  const isPending =
+    tutors.isPending || sessions.isPending || bookings.isPending;
+  const isError = tutors.isError || sessions.isError || bookings.isError;
 
-  // Derived counts -- recomputed on every render, never stored in state
-  const activeBookings = bookings.filter(
-    (b) => b.status !== BookingStatus.Cancelled
-  ).length;
-
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 animate-pulse">
         {[1, 2, 3].map((col) => (
@@ -35,9 +43,28 @@ function DashboardPage() {
     );
   }
 
+  if (isError) {
+    return (
+      <div className="rounded-2xl border border-red-200 bg-red-50 dark:border-red-900/40 dark:bg-red-950/20 p-5">
+        <h2 className="text-sm font-bold text-red-700 dark:text-red-400">
+          Could not reach the API.
+        </h2>
+        <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+          Is json-server running on port 3001? Start it with{" "}
+          <code className="font-mono">npm run api</code>.
+        </p>
+      </div>
+    );
+  }
+
+  // Derived counts -- recomputed on every render, never stored in state
+  const activeBookings = bookings.data.filter(
+    (b) => b.status !== BookingStatus.Cancelled
+  ).length;
+
   const stats = [
-    { label: "Tutors Available", value: allTutors.length, to: "/tutors", icon: "👥" },
-    { label: "Sessions Scheduled", value: allSessions.length, to: "/sessions", icon: "📅" },
+    { label: "Tutors Available", value: tutors.data.length, to: "/tutors", icon: "👥" },
+    { label: "Sessions Scheduled", value: sessions.data.length, to: "/sessions", icon: "📅" },
     { label: "Active Bookings", value: activeBookings, to: "/bookings", icon: "📋" },
   ];
 

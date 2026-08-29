@@ -54,7 +54,7 @@ function Layout() {
                 Peer Booking Platform
               </h1>
               <p className="text-xs font-bold tracking-widest text-slate-400 dark:text-slate-500 uppercase mt-1">
-                ITELECT4 - GT3 PART 2
+                ITELECT4 - GT3 PART 3
               </p>
             </div>
 

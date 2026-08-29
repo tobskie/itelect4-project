@@ -22,6 +22,11 @@ function TutorDetailPage() {
   const cardVariant = useUiStore((state) => state.cardVariant);
   const { requestBooking } = useRequestBooking();
 
+  // The card hands back a session id; the hook takes the whole request.
+  const handleBook = (sessionId: string): void => {
+    requestBooking({ sessionId });
+  };
+
   // ["tutors", tutorId] -- the same first element as the list, plus the thing
   // that makes this one different. Leave tutorId out of the key and every tutor
   // you visit would overwrite the last one in the cache: silent, and it looks
@@ -121,7 +126,7 @@ function TutorDetailPage() {
                 key={session.id}
                 session={session}
                 tutorName={tutor.name}
-                onBook={requestBooking}
+                onBook={handleBook}
                 variant={cardVariant}
               />
             ))}

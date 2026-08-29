@@ -3,11 +3,13 @@
 // signed in to see them.
 // SESSION 7: the list is read with useQuery, and cancelling or annotating a
 // booking is a real PATCH that invalidates that same key when it succeeds.
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router";
 import type { ApiBooking, ApiSession, BookingPatch } from "../types/index";
 import { BookingStatus } from "../types/index";
 import BookingStatusCard from "../components/BookingStatusCard";
+import BookingRequestForm from "../components/BookingRequestForm";
 import { currentTutee } from "../data/mockData";
 import { fetchBookings, fetchSessions, updateBooking } from "../api/client";
 import useAuthStore from "../store/authStore";
@@ -15,6 +17,9 @@ import useUiStore from "../store/uiStore";
 
 function BookingsPage() {
   const queryClient = useQueryClient();
+  // The banner the form reports into. The form owns its own values; this is
+  // the only piece of state left on the page.
+  const [feedback, setFeedback] = useState<string>("");
   const cardVariant = useUiStore((state) => state.cardVariant);
 
   // ProtectedRoute guarantees there is a token, so this name is always set
@@ -95,6 +100,14 @@ function BookingsPage() {
           {data.length} total
         </span>
       </div>
+
+      <BookingRequestForm sessions={sessions ?? []} onResult={setFeedback} />
+
+      {feedback && (
+        <p className="rounded-2xl border border-indigo-200 bg-indigo-50/80 px-4 py-3 text-xs font-semibold text-indigo-700 dark:border-indigo-900/40 dark:bg-indigo-950/30 dark:text-indigo-300">
+          {feedback}
+        </p>
+      )}
 
       <div className="flex items-center gap-3 rounded-2xl bg-indigo-50/40 border border-indigo-100/50 p-3.5 dark:bg-indigo-950/10 dark:border-indigo-900/30 max-w-sm">
         <div className="h-8 w-8 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">

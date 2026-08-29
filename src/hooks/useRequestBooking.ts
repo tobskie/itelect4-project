@@ -1,17 +1,34 @@
-// src/hooks/useRequestBooking.ts -- a NEW file
-// Two pages let you book a session: the Sessions list and a tutor's detail
-// page. Rather than write the same useMutation twice, the write lives here --
-// the same reason useToggle and usePrevious exist.
+// src/hooks/useRequestBooking.ts
+// Two places create a booking: the validated form on /bookings, and the quick
+// "Book Session" button on the Sessions list. Rather than write the same
+// useMutation twice, the write lives here -- the same reason useToggle and
+// usePrevious exist.
 //
-// This is the POST half of Session 7: mutationFn does the write, and onSuccess
-// invalidates the key the new row belongs to.
+// SESSION 7 wrote the mutation. SESSION 8 only changed what it is handed: the
+// form now passes values Zod has already checked.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ApiBooking, NewBooking } from "../types/index";
 import { BookingStatus } from "../types/index";
 import { createBooking, fetchBookings } from "../api/client";
 import { currentTutee } from "../data/mockData";
 
-function useRequestBooking() {
+// Everything the form collects, plus the shorter version the quick button
+// sends. contactEmail and preferredDate are optional here because the button
+// has no fields to collect them from.
+export interface BookingRequestInput {
+  sessionId: string;
+  notes?: string;
+  contactEmail?: string;
+  preferredDate?: string;
+}
+
+interface UseRequestBookingOptions {
+  // The page decides what "it worked" means -- clearing the form, in the
+  // form's case. The hook does not know the form exists.
+  onSaved?: () => void;
+}
+
+function useRequestBooking(options: UseRequestBookingOptions = {}) {
   const queryClient = useQueryClient();
 
   // Same key as the Bookings page, so this shares that page's cache entry and
@@ -28,25 +45,30 @@ function useRequestBooking() {
       // This does NOT fetch: it marks the entry stale, and Query refetches it
       // because a mounted component is using that key.
       queryClient.invalidateQueries({ queryKey: ["bookings"] });
+      options.onSaved?.();
     },
   });
 
-  // Returns the message the page shows in its feedback banner -- the same
-  // duplicate guard the GT2 store had, now checked against server data.
-  const requestBooking = (sessionId: string): string => {
-    const alreadyBooked = (bookings ?? []).some(
+  // The duplicate guard, checked against server data rather than a local array.
+  const isAlreadyBooked = (sessionId: string): boolean =>
+    (bookings ?? []).some(
       (b) => b.sessionId === sessionId && b.status !== BookingStatus.Cancelled
     );
-    if (alreadyBooked) {
+
+  // Returns the message the page shows in its banner.
+  const requestBooking = (input: BookingRequestInput): string => {
+    if (isAlreadyBooked(input.sessionId)) {
       return "You already have an active booking for this session.";
     }
 
     const newBooking: NewBooking = {
-      sessionId,
+      sessionId: input.sessionId,
       tuteeId: currentTutee.id,
       status: BookingStatus.Requested,
       requestedAt: new Date().toISOString(), // a STRING, not a Date
-      notes: "",
+      notes: input.notes ?? "",
+      contactEmail: input.contactEmail,
+      preferredDate: input.preferredDate,
     };
 
     // mutate() is fire-and-forget: it does not return the saved row. That
@@ -57,6 +79,7 @@ function useRequestBooking() {
 
   return {
     requestBooking,
+    isAlreadyBooked,
     isSaving: mutation.isPending,
     isError: mutation.isError,
     error: mutation.error,

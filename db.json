@@ -28,14 +28,13 @@
     },
     {
       "id": "3",
-      "name": "Mika Reyes",
-      "email": "mikareyes@example.com",
+      "name": "Mau B",
+      "email": "maub@example.com",
       "role": "tutor",
       "isActive": true,
-      "bio": "2nd yr BSCS Student. Calculus and Physics tutor since 1st year.",
+      "bio": "Psych Student. Psychology tutor since 1st year.",
       "subjects": [
-        "Calculus",
-        "Physics"
+        "Psychology"
       ]
     }
   ],
@@ -86,6 +85,5 @@
       "confirmedAt": "2026-07-16T12:00:00.000Z",
       "notes": "Need help with trig integration."
     }
-  ],
-  "$schema": "./node_modules/json-server/schema.json"
+  ]
 }

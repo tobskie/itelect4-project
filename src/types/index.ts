@@ -158,6 +158,9 @@ export interface Booking {
     confirmedAt?: Date;  // set when tutor confirms
     completedAt?: Date;  // set when session is marked done
     notes?: string;
+    // SESSION 8 -- collected by the booking form on /bookings
+    contactEmail?: string;  // how the tutor answers you
+    preferredDate?: Date;   // the day the tutee is free
 }
 
 // ===== UTILITY TYPES =====
@@ -208,7 +211,13 @@ export type ApiSession = Omit<Session, "id" | "tutorId" | "scheduledAt"> & {
 // GET /bookings -- same treatment for every id and every timestamp
 export type ApiBooking = Omit<
     Booking,
-    "id" | "sessionId" | "tuteeId" | "requestedAt" | "confirmedAt" | "completedAt"
+    "id"
+    | "sessionId"
+    | "tuteeId"
+    | "requestedAt"
+    | "confirmedAt"
+    | "completedAt"
+    | "preferredDate"
 > & {
     id: string;
     sessionId: string;
@@ -216,6 +225,7 @@ export type ApiBooking = Omit<
     requestedAt: string;
     confirmedAt?: string;
     completedAt?: string;
+    preferredDate?: string;   // a calendar date, "2026-08-30"
 };
 
 // What we SEND when creating one. No id yet -- the server makes it.

@@ -46,7 +46,7 @@ function SessionsPage() {
   };
 
   const handleBookSession = (sessionId: string): void => {
-    const message = requestBooking(sessionId);
+    const message = requestBooking({ sessionId });
     setFeedback(message);
     setTimeout(() => {
       setFeedback((current) => (current === message ? "" : current));

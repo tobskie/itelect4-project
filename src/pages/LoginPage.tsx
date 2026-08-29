@@ -1,7 +1,14 @@
 // src/pages/LoginPage.tsx
 // There is no real password -- typing a name is enough to mint a demo token.
+// SESSION 8: the hand-rolled input and button are replaced by the shadcn ones,
+// the second page that uses them. This form keeps its useState on purpose: one
+// field with one rule needs no schema, and knowing when NOT to reach for the
+// heavier tool is part of the point.
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import useAuthStore from "../store/authStore";
 
 function LoginPage() {
@@ -25,20 +32,23 @@ function LoginPage() {
         Sign in to view and manage your bookings.
       </p>
 
-      <input
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Your name"
-        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:placeholder-slate-500"
-      />
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="name">Your name</Label>
+        <Input
+          id="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Your name"
+        />
+      </div>
 
-      <button
+      <Button
         onClick={handleLogin}
         disabled={name === ""}
-        className="mt-3 w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed dark:disabled:bg-slate-800 px-4 py-2 text-xs font-semibold text-white transition-colors duration-200 cursor-pointer"
+        className="mt-4 w-full"
       >
         Log In
-      </button>
+      </Button>
     </div>
   );
 }

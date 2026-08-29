@@ -3,5 +3,13 @@
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
-  ]
+  ],
+  "compilerOptions": {
+    /* SESSION 8: what "@/..." means. NOTE: no "baseUrl" -- the shadcn guide
+       tells you to add one, and TypeScript 6 answers with
+       error TS5101: Option 'baseUrl' is deprecated. paths works without it:
+       with no baseUrl it resolves relative to this tsconfig file, which is
+       exactly what we want. */
+    "paths": { "@/*": ["./src/*"] }
+  }
 }

@@ -5,12 +5,13 @@
 // usePrevious exist.
 //
 // SESSION 7 wrote the mutation. SESSION 8 only changed what it is handed: the
-// form now passes values Zod has already checked.
+// form now passes values Zod has already checked. GT4 PART 2 stops it
+// inventing the owner, the status and the timestamp -- the API sets all three.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ApiBooking, NewBooking } from "../types/index";
 import { BookingStatus } from "../types/index";
 import { createBooking, fetchBookings } from "../api/client";
-import { currentTutee } from "../data/mockData";
+import useAuthStore from "../store/authStore";
 
 // Everything the form collects, plus the shorter version the quick button
 // sends. contactEmail and preferredDate are optional here because the button
@@ -30,12 +31,16 @@ interface UseRequestBookingOptions {
 
 function useRequestBooking(options: UseRequestBookingOptions = {}) {
   const queryClient = useQueryClient();
+  const token = useAuthStore((state) => state.token);
 
   // Same key as the Bookings page, so this shares that page's cache entry and
-  // costs no extra request when one has already been made.
+  // costs no extra request when one has already been made. The Sessions page
+  // is public, so without a token there is nothing to ask for -- the API
+  // would only answer 401.
   const { data: bookings } = useQuery<ApiBooking[]>({
     queryKey: ["bookings"],
     queryFn: fetchBookings,
+    enabled: token !== null,
   });
 
   const mutation = useMutation({
@@ -57,16 +62,19 @@ function useRequestBooking(options: UseRequestBookingOptions = {}) {
 
   // Returns the message the page shows in its banner.
   const requestBooking = (input: BookingRequestInput): string => {
+    if (token === null) {
+      return "Log in first -- a booking belongs to an account.";
+    }
     if (isAlreadyBooked(input.sessionId)) {
       return "You already have an active booking for this session.";
     }
 
+    // Only what a tutee may set. Fields left undefined vanish in
+    // JSON.stringify, so the quick button sends just the sessionId -- an
+    // empty "" note would fail the schema's 10-character minimum.
     const newBooking: NewBooking = {
       sessionId: input.sessionId,
-      tuteeId: currentTutee.id,
-      status: BookingStatus.Requested,
-      requestedAt: new Date().toISOString(), // a STRING, not a Date
-      notes: input.notes ?? "",
+      notes: input.notes,
       contactEmail: input.contactEmail,
       preferredDate: input.preferredDate,
     };

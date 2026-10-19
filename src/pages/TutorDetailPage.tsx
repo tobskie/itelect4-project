@@ -51,8 +51,8 @@ function TutorDetailPage() {
     queryFn: fetchSessions,
   });
 
-  // Filtered here rather than by the server: see the note in api/client.ts --
-  // json-server's ?tutorId= filter cannot match a string id.
+  // Filtered here rather than by the server: the list is three rows, and the
+  // shared ["sessions"] entry is usually already in the cache.
   const tutorSessions = sessions?.filter((s) => s.tutorId === tutorId);
 
   if (isPending) {

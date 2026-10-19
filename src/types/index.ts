@@ -190,15 +190,16 @@ export type TutorWithStats = TutoringUser & {
 // ============================================================
 // ----- SESSION 7 -- THE SHAPES THE API ACTUALLY RETURNS -----
 // ============================================================
-// JSON has no Date, and json-server writes every id as a string. So what
-// comes back over HTTP is NOT the shape declared above. All three types are
+// JSON has no Date, and every id the API sends is a string. So what comes
+// back over HTTP is NOT the shape declared above. All three types are
 // DERIVED from the originals, so those stay the single source of truth --
 // add a field there and these inherit it.
 // Omit is from GT1 Part 2. The & intersection is from GT1 Part 1.
 
-// GET /tutors -- only the id differs from TutoringUser
+// GET /api/tutors, and the user inside the login reply -- only the id
+// differs from TutoringUser
 export type ApiUser = Omit<TutoringUser, "id"> & {
-    id: string;             // json-server ids are strings: "1", "z4U3v8og06g"
+    id: string;             // "1" for a tutor, 24 hex characters for an account
 };
 
 // GET /sessions -- ids are strings and scheduledAt is an ISO string
@@ -228,9 +229,32 @@ export type ApiBooking = Omit<
     preferredDate?: string;   // a calendar date, "2026-08-30"
 };
 
-// What we SEND when creating one. No id yet -- the server makes it.
-export type NewBooking = Omit<ApiBooking, "id">;
+// ===== SESSIONS 7-8: written for json-server ==========================
+// export type NewBooking = Omit<ApiBooking, "id">;
+// export type BookingPatch = Partial<Omit<ApiBooking, "id">>;
+//
+// NOTE: json-server stored whatever it was handed, so the page invented
+//       tuteeId ("4" for everybody), status and requestedAt. The real API
+//       takes the owner off the token and the other two from schema
+//       defaults -- sending them is at best ignored and at worst a lie.
+// ===== GT4 PART 2: only the fields a tutee may actually set ============
 
-// What we SEND when editing one: PATCH only needs the changed fields.
-// Partial is from GT1 Part 2, and the id is excluded because it is in the URL.
-export type BookingPatch = Partial<Omit<ApiBooking, "id">>;
+// What we SEND when creating one. The backend's NewBookingBody is this
+// same Pick.
+export type NewBooking = Pick<
+    ApiBooking,
+    "sessionId" | "notes" | "contactEmail" | "preferredDate"
+>;
+
+// What we SEND when editing one: PATCH only needs the changed fields, and
+// tuteeId is absent so a booking cannot be handed to another user.
+export type BookingPatch = Partial<
+    Pick<ApiBooking, "status" | "notes" | "contactEmail" | "preferredDate">
+>;
+
+// What /api/auth/login sends back. The token is the string that goes in
+// the Authorization header on every request after this one.
+export interface AuthReply {
+    token: string;
+    user: ApiUser;
+}

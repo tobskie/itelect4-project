@@ -46,7 +46,7 @@ export default function BookingRequestForm({
     },
   });
 
-  const { requestBooking, isSaving } = useRequestBooking({
+  const { requestBooking, isSaving, isError, error } = useRequestBooking({
     onSaved: () => reset(),
   });
 
@@ -146,6 +146,14 @@ export default function BookingRequestForm({
       <Button type="submit" disabled={isSaving} className="self-start">
         {isSaving ? "Sending..." : "Request Booking"}
       </Button>
+
+      {/* GT4 PART 2: the API's own refusal -- the schema rules it checked,
+          or a 401 once the two-hour token has expired. */}
+      {isError && (
+        <p role="alert" className="text-xs font-semibold text-red-700 dark:text-red-400">
+          {error?.message}
+        </p>
+      )}
     </form>
   );
 }

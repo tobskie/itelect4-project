@@ -9,6 +9,7 @@ import TutorDetailPage from "./pages/TutorDetailPage";
 import SessionsPage from "./pages/SessionsPage";
 import BookingsPage from "./pages/BookingsPage";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
@@ -20,6 +21,8 @@ function App() {
         <Route path="tutors/:tutorId" element={<TutorDetailPage />} />
         <Route path="sessions" element={<SessionsPage />} />
         <Route path="login" element={<LoginPage />} />
+        {/* Public, like login: you cannot be logged in yet. */}
+        <Route path="register" element={<RegisterPage />} />
 
         <Route element={<ProtectedRoute />}> {/* <-- the guard */}
           <Route path="bookings" element={<BookingsPage />} />

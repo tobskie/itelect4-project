@@ -54,7 +54,7 @@ function Layout() {
                 Peer Booking Platform
               </h1>
               <p className="text-xs font-bold tracking-widest text-slate-400 dark:text-slate-500 uppercase mt-1">
-                ITELECT4 - GT3 PART 3
+                ITELECT4 - GT4 PART 2
               </p>
             </div>
 
@@ -103,9 +103,14 @@ function Layout() {
 
             <div className="ml-auto flex items-center gap-2">
               {userName === null ? (
-                <NavLink to="/login" className={linkClass}>
-                  Login
-                </NavLink>
+                <>
+                  <NavLink to="/login" className={linkClass}>
+                    Login
+                  </NavLink>
+                  <NavLink to="/register" className={linkClass}>
+                    Register
+                  </NavLink>
+                </>
               ) : (
                 <button
                   onClick={logout}

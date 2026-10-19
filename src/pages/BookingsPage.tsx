@@ -10,8 +10,7 @@ import type { ApiBooking, ApiSession, BookingPatch } from "../types/index";
 import { BookingStatus } from "../types/index";
 import BookingStatusCard from "../components/BookingStatusCard";
 import BookingRequestForm from "../components/BookingRequestForm";
-import { currentTutee } from "../data/mockData";
-import { fetchBookings, fetchSessions, updateBooking } from "../api/client";
+import { API_URL, fetchBookings, fetchSessions, updateBooking } from "../api/client";
 import useAuthStore from "../store/authStore";
 import useUiStore from "../store/uiStore";
 
@@ -22,8 +21,10 @@ function BookingsPage() {
   const [feedback, setFeedback] = useState<string>("");
   const cardVariant = useUiStore((state) => state.cardVariant);
 
-  // ProtectedRoute guarantees there is a token, so this name is always set
-  const userName = useAuthStore((state) => state.userName);
+  // ProtectedRoute guarantees there is a token, so this name is always set.
+  // GT4 PART 2: it is the account's own name now, from the login reply --
+  // the hard-coded currentTutee is gone.
+  const userName = useAuthStore((state) => state.userName) ?? "";
 
   // 1. READ
   const { data, isPending, isError, error } = useQuery<ApiBooking[]>({
@@ -83,8 +84,9 @@ function BookingsPage() {
           {error.message}
         </h2>
         <p className="mt-1 text-xs text-red-600 dark:text-red-400">
-          Is json-server running on port 3001? Start it with{" "}
-          <code className="font-mono">npm run api</code>.
+          {/* GT4 PART 2: name the host it actually tried -- most of what
+              goes wrong in a deployment is one address in the wrong place. */}
+          Tried <code className="font-mono">{API_URL}/api/bookings</code>
         </p>
       </div>
     );
@@ -111,14 +113,14 @@ function BookingsPage() {
 
       <div className="flex items-center gap-3 rounded-2xl bg-indigo-50/40 border border-indigo-100/50 p-3.5 dark:bg-indigo-950/10 dark:border-indigo-900/30 max-w-sm">
         <div className="h-8 w-8 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs">
-          {(userName ?? currentTutee.name).charAt(0).toUpperCase()}
+          {userName.charAt(0).toUpperCase()}
         </div>
         <div>
           <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
             Signed In As
           </p>
           <h4 className="text-xs font-bold text-slate-900 dark:text-slate-50">
-            {userName ?? currentTutee.name} ({currentTutee.role})
+            {userName}
           </h4>
         </div>
       </div>
@@ -137,7 +139,7 @@ function BookingsPage() {
               key={booking.id}
               booking={booking}
               subjectName={getSessionSubject(booking.sessionId)}
-              tuteeName={userName ?? currentTutee.name}
+              tuteeName={userName}
               onCancel={handleCancel}
               onNotesChange={handleNotesChange}
               variant={cardVariant}

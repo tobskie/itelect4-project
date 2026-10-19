@@ -7,10 +7,17 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router";
 import type { ApiBooking, ApiSession, ApiUser } from "../types/index";
 import { BookingStatus } from "../types/index";
-import { currentTutee } from "../data/mockData";
-import { fetchTutors, fetchSessions, fetchBookings } from "../api/client";
+import { API_URL, fetchTutors, fetchSessions, fetchBookings } from "../api/client";
+import useAuthStore from "../store/authStore";
 
 function DashboardPage() {
+  // GT4 PART 2: this page is public, but /api/bookings is not. Without a
+  // token the bookings query is simply not run, instead of failing with 401
+  // and taking the whole dashboard down with it.
+  const token = useAuthStore((state) => state.token);
+  const userName = useAuthStore((state) => state.userName);
+  const isLoggedIn = token !== null;
+
   const tutors = useQuery<ApiUser[]>({
     queryKey: ["tutors"],
     queryFn: fetchTutors,
@@ -22,12 +29,16 @@ function DashboardPage() {
   const bookings = useQuery<ApiBooking[]>({
     queryKey: ["bookings"],
     queryFn: fetchBookings,
+    enabled: isLoggedIn,
   });
 
   // isPending means "no data yet, ever" -- not the same as isFetching, which is
   // also true during a background refresh while old data is still on screen.
+  // A disabled query stays pending forever, so it only counts when it runs.
   const isPending =
-    tutors.isPending || sessions.isPending || bookings.isPending;
+    tutors.isPending ||
+    sessions.isPending ||
+    (isLoggedIn && bookings.isPending);
   const isError = tutors.isError || sessions.isError || bookings.isError;
 
   if (isPending) {
@@ -50,15 +61,16 @@ function DashboardPage() {
           Could not reach the API.
         </h2>
         <p className="mt-1 text-xs text-red-600 dark:text-red-400">
-          Is json-server running on port 3001? Start it with{" "}
-          <code className="font-mono">npm run api</code>.
+          {/* GT4 PART 2: name the host it actually tried -- most of what
+              goes wrong in a deployment is one address in the wrong place. */}
+          Tried <code className="font-mono">{API_URL}</code>
         </p>
       </div>
     );
   }
 
   // Derived counts -- recomputed on every render, never stored in state
-  const activeBookings = bookings.data.filter(
+  const activeBookings = (bookings.data ?? []).filter(
     (b) => b.status !== BookingStatus.Cancelled
   ).length;
 
@@ -75,7 +87,9 @@ function DashboardPage() {
           Dashboard
         </h2>
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          Signed in as {currentTutee.name} ({currentTutee.role})
+          {isLoggedIn
+            ? `Signed in as ${userName}`
+            : "Not signed in -- log in to see your bookings."}
         </p>
       </div>
 

@@ -9,7 +9,7 @@ import type { ApiSession, ApiUser } from "../types/index";
 import SessionCard from "../components/SessionCard";
 import usePrevious from "../hooks/usePrevious";
 import useRequestBooking from "../hooks/useRequestBooking";
-import { fetchSessions, fetchTutors } from "../api/client";
+import { API_URL, fetchSessions, fetchTutors } from "../api/client";
 import useUiStore from "../store/uiStore";
 
 function SessionsPage() {
@@ -73,8 +73,9 @@ function SessionsPage() {
           {error.message}
         </h2>
         <p className="mt-1 text-xs text-red-600 dark:text-red-400">
-          Is json-server running on port 3001? Start it with{" "}
-          <code className="font-mono">npm run api</code>.
+          {/* GT4 PART 2: name the host it actually tried -- most of what
+              goes wrong in a deployment is one address in the wrong place. */}
+          Tried <code className="font-mono">{API_URL}/api/sessions</code>
         </p>
       </div>
     );

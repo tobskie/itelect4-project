@@ -100,6 +100,10 @@ function Layout() {
             <NavLink to="/bookings" className={linkClass}>
               Bookings
             </NavLink>
+            {/* Session 11: the one page that talks to Gemini */}
+            <NavLink to="/review" className={linkClass}>
+              AI Review
+            </NavLink>
 
             <div className="ml-auto flex items-center gap-2">
               {userName === null ? (

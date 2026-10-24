@@ -8,6 +8,7 @@ import TutorsPage from "./pages/TutorsPage";
 import TutorDetailPage from "./pages/TutorDetailPage";
 import SessionsPage from "./pages/SessionsPage";
 import BookingsPage from "./pages/BookingsPage";
+import ReviewPage from "./pages/ReviewPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import NotFoundPage from "./pages/NotFoundPage";
@@ -26,6 +27,9 @@ function App() {
 
         <Route element={<ProtectedRoute />}> {/* <-- the guard */}
           <Route path="bookings" element={<BookingsPage />} />
+          {/* Session 11: behind the same guard -- the API refuses it
+              without a token anyway, so the page should not offer it. */}
+          <Route path="review" element={<ReviewPage />} />
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

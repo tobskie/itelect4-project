@@ -28,6 +28,7 @@ import type {
   NewBooking,
   BookingPatch,
   AuthReply,
+  AiReview,
 } from "../types/index";
 import useAuthStore from "../store/authStore";
 
@@ -144,3 +145,15 @@ export function loginUser(body: {
     body: JSON.stringify(body),
   });
 }
+
+// ===== SESSION 11: one more private call ===============================
+// ---- ai: private, like bookings. The token goes on automatically,
+// which matters more here than anywhere: without it, anyone could
+// spend your Gemini quota.
+export function askAi(prompt: string): Promise<AiReview> {
+  return request<AiReview>("/api/ai", {
+    method: "POST",
+    body: JSON.stringify({ prompt }),
+  });
+}
+

@@ -4,7 +4,7 @@
 
 A TypeScript and React web application for a Peer Tutoring Booking Platform, built with Vite, Tailwind CSS, TanStack Query, and React Router.
 
-- **Live Site:** https://<your-frontend-subdomain>.vercel.app
+- **Live Site:** https://itelect4-project-alpha.vercel.app/
 - **Backend repo:** https://github.com/tobskie/itelect4-backend
 
 ## Architecture
